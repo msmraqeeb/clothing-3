@@ -184,7 +184,7 @@ export interface StoreInfo {
 export interface HomeSection {
   id: string;
   title: string;
-  type: 'slider' | 'grid' | 'grid-no-banner' | 'tabbed-slider' | 'category-grid' | 'featured-category-sidebar' | 'three-column-banners' | 'single-banner' | 'brand-tabs' | 'featured-categories-grid' | 'featured-collection-scroll';
+  type: 'slider' | 'grid' | 'grid-no-banner' | 'tabbed-slider' | 'category-grid' | 'featured-category-sidebar' | 'three-column-banners' | 'single-banner' | 'brand-tabs' | 'featured-categories-grid' | 'featured-collection-scroll' | 'featured-product-grid' | 'brand-logos';
   filterType: 'category' | 'sale' | 'featured' | 'all';
   filterValue?: string;
   categoryIds?: string[]; // Added to store selected categories for customized grids

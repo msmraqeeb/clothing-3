@@ -624,8 +624,17 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const updateHomeSectionsInDB = async (newSections: HomeSection[]) => {
-    const { error } = await supabase.from('settings').upsert({ key: 'home_sections', value: newSections });
-    if (error) throw new Error(error.message);
+    // Try UPDATE first (most common case to avoid RLS INSERT checks)
+    const { error: updateError } = await supabase.from('settings').update({ value: newSections }).eq('key', 'home_sections');
+
+    if (updateError) {
+      if (updateError.code === 'PGRST116') { // Row not found (rare for settings but possible if fresh db)
+        const { error: insertError } = await supabase.from('settings').insert([{ key: 'home_sections', value: newSections }]);
+        if (insertError) throw new Error(insertError.message);
+      } else {
+        throw new Error(updateError.message);
+      }
+    }
     setHomeSections(newSections);
   };
 
@@ -684,16 +693,70 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       },
       addProduct: async (p) => {
         const baseSlug = p.slug || generateSlug(p.name || '');
-        const uniqueSlug = ensureUniqueSlug(products, baseSlug);
-        const productToSave = { ...p, slug: uniqueSlug };
+        let uniqueSlug = ensureUniqueSlug(products, baseSlug);
 
-        const { error } = await supabase.from('products').insert([mapProductToDB(productToSave)]);
-        if (error) throw new Error(error.message);
+        let attempt = 0;
+        while (attempt < 3) {
+          try {
+            const productToSave = { ...p, slug: uniqueSlug };
+            const { error } = await supabase.from('products').insert([mapProductToDB(productToSave)]);
+
+            if (error) {
+              // Check for unique violation (Postgres code 23505) on slug
+              if (error.code === '23505' && (error.message.includes('slug') || error.details?.includes('slug'))) {
+                // Fallback: Append random number to ensure uniqueness if state was stale
+                uniqueSlug = `${baseSlug}-${Math.floor(Math.random() * 10000)}`;
+                attempt++;
+                continue; // Retry with new slug
+              }
+              throw new Error(error.message);
+            }
+
+            // Success
+            break;
+          } catch (err: any) {
+            if (attempt >= 2) throw err; // Give up after retries
+            if (!err.message.includes('unique') && !err.message.includes('slug')) throw err; // Rethrow non-slug errors
+            attempt++;
+            uniqueSlug = `${baseSlug}-${Math.floor(Math.random() * 10000)}`;
+          }
+        }
+
         await fetchData(user, false);
       },
       updateProduct: async (id, p) => {
-        const { error } = await supabase.from('products').update(mapProductToDB(p)).eq('id', id);
-        if (error) throw new Error(error.message);
+        let attempt = 0;
+        let currentSlug = p.slug;
+
+        // If slug is being updated (or if we are just updating other fields but want to be safe)
+        // If p.slug is undefined, we are not updating the slug, so no collision risk (unless name changes and we aren't handling that here, but Admin passes slug now)
+
+        while (attempt < 3) {
+          try {
+            const dataToUpdate = mapProductToDB({ ...p, slug: currentSlug });
+            const { error } = await supabase.from('products').update(dataToUpdate).eq('id', id);
+
+            if (error) {
+              if (error.code === '23505' && (error.message.includes('slug') || error.details?.includes('slug'))) {
+                // Collision! Modify slug and retry
+                // If no slug was provided initially but we hit collision (rare), or if provided slug collided
+                const base = currentSlug || p.name?.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-') || 'product';
+                currentSlug = `${base}-${Math.floor(Math.random() * 10000)}`;
+                attempt++;
+                continue;
+              }
+              throw new Error(error.message);
+            }
+            break; // Success
+          } catch (err: any) {
+            if (attempt >= 2) throw err;
+            if (!err.message.includes('unique') && !err.message.includes('slug')) throw err;
+
+            attempt++;
+            const base = currentSlug || p.name?.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-') || 'product';
+            currentSlug = `${base}-${Math.floor(Math.random() * 10000)}`;
+          }
+        }
         await fetchData(user, false);
       },
       deleteProduct: async (id) => {

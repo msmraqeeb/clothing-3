@@ -35,7 +35,8 @@ export const ImageLibrary: React.FC<ImageLibraryProps> = ({ onSelect, onClose })
                             id: item.id || data.publicUrl,
                             name: item.name,
                             url: data.publicUrl,
-                            source: 'Supabase'
+                            source: 'Supabase',
+                            timestamp: item.created_at ? new Date(item.created_at).getTime() : 0,
                         });
                     }
                 });
@@ -48,72 +49,109 @@ export const ImageLibrary: React.FC<ImageLibraryProps> = ({ onSelect, onClose })
                 { data: blogPosts },
                 { data: categories },
                 { data: homeSections },
-                { data: storeInfo }
+                { data: storeSettings },
+                { data: mediaHistory },
+                { data: brands }
             ] = await Promise.all([
-                supabase.from('products').select('images, variants'),
-                supabase.from('banners').select('image_url'),
-                supabase.from('blog_posts').select('imageUrl'),
-                supabase.from('categories').select('image'),
-                supabase.from('home_sections').select('banner'),
-                supabase.from('store_info').select('logo_url, favicon_url').single()
+                supabase.from('products').select('images, variants, created_at'),
+                supabase.from('banners').select('image_url, created_at'),
+                supabase.from('blog_posts').select('imageUrl, created_at'),
+                supabase.from('categories').select('image, created_at'),
+                supabase.from('home_sections').select('banner, gridBanners'),
+                supabase.from('settings').select('value').eq('key', 'store_info').maybeSingle(),
+                supabase.from('settings').select('value').eq('key', 'media_history').maybeSingle(),
+                supabase.from('brands').select('logo_url, created_at')
             ]);
 
             // Helper to add image
-            const addImage = (url?: string) => {
+            const addImage = (url?: string, timestamp?: string | number) => {
                 if (!url) return;
-                // Normalize URL to prevent duplicates with different protocols or slight variations if needed
-                // For now, strict string check is fine
-                if (allImages.has(url)) return;
+
+                const ts = timestamp ? new Date(timestamp).getTime() : 0;
+
+                // If exists, update timestamp if newer (only if we have a valid new timestamp)
+                if (allImages.has(url)) {
+                    if (ts > 0) {
+                        const existing = allImages.get(url);
+                        if (ts > (existing.timestamp || 0)) {
+                            existing.timestamp = ts;
+                        }
+                    }
+                    return;
+                }
 
                 // Try to extract name from URL
                 let name = url;
                 try {
                     const parts = url.split('/');
                     name = parts[parts.length - 1];
-                    // Clean cloudinary version/params if possible, but filename is usually last
                 } catch (e) { }
 
                 allImages.set(url, {
                     id: url,
                     name: name,
                     url: url,
-                    source: 'Database'
+                    source: 'Database',
+                    timestamp: ts
                 });
             };
 
             // Process Products
             products?.forEach((p: any) => {
-                if (Array.isArray(p.images)) p.images.forEach((img: string) => addImage(img));
+                if (Array.isArray(p.images)) p.images.forEach((img: string) => addImage(img, p.created_at));
                 // Check variants
                 if (Array.isArray(p.variants)) {
-                    p.variants.forEach((v: any) => addImage(v.image));
+                    p.variants.forEach((v: any) => addImage(v.image, p.created_at));
                 }
             });
 
             // Process Banners
-            banners?.forEach((b: any) => addImage(b.image_url));
+            banners?.forEach((b: any) => addImage(b.image_url, b.created_at));
 
             // Process Blog Posts
-            blogPosts?.forEach((b: any) => addImage(b.imageUrl));
+            blogPosts?.forEach((b: any) => addImage(b.imageUrl, b.created_at));
 
             // Process Categories
-            categories?.forEach((c: any) => addImage(c.image));
+            categories?.forEach((c: any) => addImage(c.image, c.created_at));
 
             // Process Home Sections
             homeSections?.forEach((s: any) => {
                 if (s.banner && s.banner.imageUrl) {
                     addImage(s.banner.imageUrl);
                 }
+                if (Array.isArray(s.gridBanners)) {
+                    s.gridBanners.forEach((b: any) => {
+                        if (b.imageUrl) addImage(b.imageUrl);
+                    });
+                }
             });
 
-            // Process Store Info
-            if (storeInfo) {
-                addImage(storeInfo.logo_url);
-                addImage(storeInfo.favicon_url);
+            // Process Store Info (from Settings)
+            if (storeSettings?.value) {
+                addImage(storeSettings.value.logo_url);
+                addImage(storeSettings.value.favicon_url);
             }
 
-            // Convert Map to Array
-            setImages(Array.from(allImages.values()));
+            // Process Brands
+            brands?.forEach((b: any) => addImage(b.logo_url, b.created_at));
+
+            // Process Media History (Global Library)
+            // This is the most accurate source for recent uploads
+            if (mediaHistory?.value && Array.isArray(mediaHistory.value)) {
+                mediaHistory.value.forEach((img: any) => {
+                    if (img.url) addImage(img.url, img.created_at);
+                });
+            }
+
+            // Convert Map to Array and Sort by Timestamp (Newest First)
+            const sortedImages = Array.from(allImages.values()).sort((a, b) => {
+                // Prioritize items with timestamps
+                const timeA = a.timestamp || 0;
+                const timeB = b.timestamp || 0;
+                return timeB - timeA;
+            });
+
+            setImages(sortedImages);
 
         } catch (error) {
             console.error('Error fetching images:', error);

@@ -60,12 +60,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'default' 
       {/* Image Container */}
       <Link
         to={`/product/${product.slug}`}
-        className={`block relative overflow-hidden bg-gray-100 mb-3 ${variant === 'scroll' ? 'flex-1 w-full' : 'aspect-[3/4]'}`}
+        className={`block relative overflow-hidden mb-3 ${variant === 'scroll' ? 'flex-1 w-full bg-white' : 'aspect-[3/4] bg-gray-100'}`}
       >
         <img
           src={currentImage}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className={`w-full h-full transition-transform duration-700 group-hover:scale-105 ${variant === 'scroll' ? 'object-contain object-center' : 'object-cover'}`}
         />
         {/* Discount Badge */}
         {isDiscounted && (
@@ -76,7 +76,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'default' 
       </Link>
 
       {/* Content */}
-      <div className="flex flex-col flex-1 px-1">
+      <div className={`flex flex-col px-1 ${variant === 'scroll' ? 'flex-shrink-0' : 'flex-1'}`}>
         <Link to={`/product/${product.slug}`} className="block mb-1">
           <h3 className="text-[15px] font-medium text-gray-800 leading-tight line-clamp-1 group-hover:text-emerald-600 transition-colors" title={product.name}>
             {product.name}

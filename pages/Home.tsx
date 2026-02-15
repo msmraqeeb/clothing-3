@@ -11,7 +11,9 @@ import ThreeColumnBanners from '../components/ThreeColumnBanners';
 import SingleBanner from '../components/SingleBanner';
 import FeaturedBrandTabs from '../components/FeaturedBrandTabs';
 import FeaturedCategoriesGrid from '../components/FeaturedCategoriesGrid';
+import FeaturedProductGrid from '../components/FeaturedProductGrid';
 import FeaturedCollectionScroll from '../components/FeaturedCollectionScroll';
+import BrandLogoSlider from '../components/BrandLogoSlider';
 import { useStore } from '../context/StoreContext';
 import { Product } from '../types';
 
@@ -263,9 +265,13 @@ const Home: React.FC = () => {
           return (
             <SingleBanner key={section.id} banner={section.banner} />
           );
-        } else if (section.type === 'brand-tabs' && section.brandNames) {
+        } else if (section.type === 'brand-tabs') {
           return (
-            <FeaturedBrandTabs key={section.id} title={section.title} brandNames={section.brandNames} />
+            <FeaturedBrandTabs key={section.id} title={section.title} brandNames={section.brandNames || []} />
+          );
+        } else if (section.type === 'brand-logos') {
+          return (
+            <BrandLogoSlider key={section.id} title={section.title} brandNames={section.brandNames} />
           );
         } else if (section.type === 'featured-categories-grid' && section.gridBanners) {
           return (
@@ -280,6 +286,15 @@ const Home: React.FC = () => {
               link={section.banner.link}
               products={getSectionProducts(section)}
               backgroundColor={section.banner.imageUrl}
+            />
+          );
+        } else if (section.type === 'featured-product-grid') {
+          return (
+            <FeaturedProductGrid
+              key={section.id}
+              title={section.title}
+              products={getSectionProducts(section)}
+              viewAllLink={section.banner?.link}
             />
           );
         }

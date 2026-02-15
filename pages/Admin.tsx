@@ -69,7 +69,7 @@ const Admin: React.FC = () => {
   // Form States
   const [prodForm, setProdForm] = useState({
     name: '', basePrice: '', salePrice: '', category: '', description: '', shortDescription: '', images: [] as string[],
-    unit: '', sku: '', brand: '', isFeatured: false, variants: [] as Variant[], tempAttributes: [] as { name: string, options: string[], forVariations: boolean }[]
+    unit: '', sku: '', brand: '', slug: '', isFeatured: false, variants: [] as Variant[], tempAttributes: [] as { name: string, options: string[], forVariations: boolean }[]
   });
 
   const [catForm, setCatForm] = useState({ name: '', parentId: '' as string | null, image: '' });
@@ -700,7 +700,7 @@ CREATE POLICY "Public read blog" ON public.blog_posts FOR SELECT USING (true);`;
       isFeatured: prodForm.isFeatured,
       variants: prodForm.variants,
       attributes: prodForm.tempAttributes.map(a => ({ name: a.name, options: a.options })),
-      slug: prodForm.name.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '')
+      slug: prodForm.slug || prodForm.name.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '')
     };
 
     try {
@@ -793,6 +793,7 @@ CREATE POLICY "Public read blog" ON public.blog_posts FOR SELECT USING (true);`;
       unit: p.unit || '',
       sku: p.sku || '',
       brand: p.brand || '',
+      slug: p.slug || '',
       isFeatured: p.isFeatured || false,
       variants: p.variants || [],
       tempAttributes: reconstructedAttrs
@@ -1373,6 +1374,9 @@ CREATE POLICY "Public read blog" ON public.blog_posts FOR SELECT USING (true);`;
                     <select value={sectionForm.type} onChange={e => setSectionForm({ ...sectionForm, type: e.target.value as any })} className="w-full bg-emerald-50 border border-emerald-100  px-4 py-3 font-bold outline-none">
                       <option value="featured-categories-grid">Featured Categories Grid (4 Cols)</option>
                       <option value="featured-collection-scroll">Featured Collection Scroll (Side Text)</option>
+                      <option value="featured-product-grid">Featured Product Grid (1 Large + 8 Grid)</option>
+                      <option value="brand-logos">Brand Logos Slider</option>
+                      <option value="brand-tabs">Featured Brand Tabs</option>
                     </select>
                   </div>
                   <div className="space-y-2">
@@ -1428,7 +1432,7 @@ CREATE POLICY "Public read blog" ON public.blog_posts FOR SELECT USING (true);`;
                   </div>
                 )}
 
-                {sectionForm.type === 'brand-tabs' && (
+                {(sectionForm.type === 'brand-tabs' || sectionForm.type === 'brand-logos') && (
                   <div className="space-y-3 pt-6 border-t border-emerald-100">
                     <div className="flex justify-between items-center">
                       <label className="text-[10px] font-black text-emerald-400 uppercase tracking-widest ml-1">Select Brands to Display</label>
@@ -1594,7 +1598,7 @@ CREATE POLICY "Public read blog" ON public.blog_posts FOR SELECT USING (true);`;
                   </div>
                 )}
 
-                {(sectionForm.type === 'grid' || sectionForm.type === 'featured-category-sidebar' || sectionForm.type === 'single-banner' || sectionForm.type === 'featured-collection-scroll') && (
+                {(sectionForm.type === 'grid' || sectionForm.type === 'featured-category-sidebar' || sectionForm.type === 'single-banner' || sectionForm.type === 'featured-collection-scroll' || sectionForm.type === 'featured-product-grid') && (
                   <div className="border-t pt-6">
                     <h3 className="font-bold text-lg mb-4">Banner/Side Panel Settings</h3>
                     <div className="grid grid-cols-2 gap-6">
@@ -1611,7 +1615,7 @@ CREATE POLICY "Public read blog" ON public.blog_posts FOR SELECT USING (true);`;
                           <input placeholder="#4F0343" value={sectionForm.banner?.imageUrl || ''} onChange={e => setSectionForm({ ...sectionForm, banner: { ...(sectionForm.banner || { title: '', description: '', imageUrl: '', buttonText: '', link: '' }), imageUrl: e.target.value } })} className="w-full bg-emerald-50 border border-emerald-100 px-4 py-3 font-bold" />
                           <p className="text-[10px] text-gray-400">Enter hex code (e.g. #4F0343). This field is used for the background color.</p>
                         </div>
-                      ) : (
+                      ) : sectionForm.type !== 'featured-product-grid' && (
                         <div className="col-span-2 space-y-2">
                           <label className="text-[10px] font-black text-emerald-400 uppercase tracking-widest ml-1">Banner Image</label>
                           <div className="flex gap-3 items-center">
@@ -2409,7 +2413,10 @@ CREATE POLICY "Public read blog" ON public.blog_posts FOR SELECT USING (true);`;
                         ))}
                       </div>
                     </div>
-                    <div className="space-y-2"><label className="text-[10px] font-black text-emerald-400 uppercase tracking-widest ml-1">Name</label><input required value={prodForm.name} onChange={e => setProdForm({ ...prodForm, name: e.target.value })} className="w-full bg-emerald-50 border border-emerald-200  px-6 py-4 text-base font-bold outline-none focus:ring-2 focus:ring-black" /></div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-2"><label className="text-[10px] font-black text-emerald-400 uppercase tracking-widest ml-1">Name</label><input required value={prodForm.name} onChange={e => setProdForm({ ...prodForm, name: e.target.value })} className="w-full bg-emerald-50 border border-emerald-200  px-6 py-4 text-base font-bold outline-none focus:ring-2 focus:ring-black" /></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black text-emerald-400 uppercase tracking-widest ml-1">Slug (Optional - Auto-generated if empty)</label><input value={prodForm.slug} onChange={e => setProdForm({ ...prodForm, slug: e.target.value })} className="w-full bg-emerald-50 border border-emerald-200  px-6 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-black" placeholder="product-url-slug" /></div>
+                    </div>
                     <div className="grid grid-cols-2 gap-8">
                       <div className="space-y-2"><label className="text-[10px] font-black text-emerald-400 uppercase tracking-widest ml-1">Regular M.R.P (৳)</label><input required type="number" value={prodForm.basePrice} onChange={e => setProdForm({ ...prodForm, basePrice: e.target.value })} className="w-full bg-emerald-50 border border-emerald-200  px-6 py-4 text-sm font-bold" placeholder="Base Retail Price" /></div>
                       <div className="space-y-2"><label className="text-[10px] font-black text-emerald-400 uppercase tracking-widest ml-1">Sale Price (৳) - Optional</label><input type="number" value={prodForm.salePrice} onChange={e => setProdForm({ ...prodForm, salePrice: e.target.value })} className="w-full bg-emerald-50 border border-emerald-200  px-6 py-4 text-sm font-bold text-black" placeholder="Selling Price" /></div>

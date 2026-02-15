@@ -20,7 +20,13 @@ const FeaturedBrandTabs: React.FC<FeaturedBrandTabsProps> = ({ title, brandNames
     }, [brandNames]);
 
     // If no brands are configured, don't render
-    if (!brandNames || brandNames.length === 0) return null;
+    if (!brandNames || brandNames.length === 0) {
+        return (
+            <section className="w-full py-12 bg-gray-50 border-y border-dashed border-gray-200 text-center">
+                <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">Featured Brand Tabs: No brands selected</p>
+            </section>
+        );
+    }
 
     // Filter products for the active brand
     const displayProducts = products
@@ -42,9 +48,9 @@ const FeaturedBrandTabs: React.FC<FeaturedBrandTabsProps> = ({ title, brandNames
                             <button
                                 key={brand}
                                 onClick={() => setActiveBrand(brand)}
-                                className={`px-6 py-2 rounded-none border border-gray-200 text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeBrand === brand
-                                    ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg scale-105'
-                                    : 'bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300'
+                                className={`px-6 py-2 rounded-none border text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeBrand === brand
+                                    ? 'bg-black text-white border-black shadow-lg scale-105'
+                                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
                                     }`}
                             >
                                 {brand}
@@ -103,7 +109,7 @@ const FeaturedBrandTabs: React.FC<FeaturedBrandTabsProps> = ({ title, brandNames
                                         onClick={() => addToCart(product)}
                                         className="w-full bg-emerald-500 text-white text-xs font-bold uppercase py-2 tracking-widest hover:bg-white hover:text-emerald-500 border border-transparent hover:border-emerald-500 transition-colors"
                                     >
-                                        Buy Now
+                                        Order Now
                                     </button>
                                 </div>
                             </div>
@@ -115,7 +121,7 @@ const FeaturedBrandTabs: React.FC<FeaturedBrandTabsProps> = ({ title, brandNames
                     </div>
                 )}
             </div>
-        </section>
+        </section >
     );
 };
 
