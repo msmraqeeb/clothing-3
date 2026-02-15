@@ -957,7 +957,7 @@ CREATE POLICY "Public read blog" ON public.blog_posts FOR SELECT USING (true);`;
   const closeForms = () => {
     setEditingItem(null); setIsAdding(null); setViewingOrder(null); setReplyingTo(null);
     setIsEditingOrder(false); setEditingOrderData(null);
-    setProdForm({ name: '', basePrice: '', salePrice: '', category: '', description: '', shortDescription: '', images: [], unit: '', sku: '', brand: '', isFeatured: false, variants: [], tempAttributes: [] });
+    setProdForm({ name: '', basePrice: '', salePrice: '', category: '', description: '', shortDescription: '', images: [], unit: '', sku: '', brand: '', isFeatured: false, variants: [], tempAttributes: [], slug: '' });
     setCatForm({ name: '', parentId: null, image: '' });
     setBrandForm({ name: '', slug: '', logo_url: '' });
     setAttrForm({ name: '' });
