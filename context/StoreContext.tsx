@@ -253,8 +253,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       if (showLoading) setLoading(true);
 
       // 1. Fetch Public Data (Parallel) - Optimized for initial rendering
-      // Note: We still fetch '*' for products for now as logic depends on it, but splitting the admin data is the big win.
-      const [pd, cat, br, set, attr, storeSettings, pagesRes, homeSectionsRes, bannerRes, blogRes, coupRes] = await Promise.all([
+      // Use allSettled to prevent one failure from crashing everything
+      const results = await Promise.allSettled([
         supabase.from('products').select('*').order('created_at', { ascending: false }),
         supabase.from('categories').select('*').order('name', { ascending: true }),
         supabase.from('brands').select('*').order('name', { ascending: true }),
@@ -268,6 +268,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         supabase.from('coupons').select('*').eq('status', 'Active').order('created_at', { ascending: false })
       ]);
 
+      const [pd, cat, br, set, attr, storeSettings, pagesRes, homeSectionsRes, bannerRes, blogRes, coupRes] = results.map(r => r.status === 'fulfilled' ? r.value : { data: null, error: r.reason });
+
+      // Checks remain the same, as we default to { data: null } on failure
       if (pd.data) setProducts(pd.data.map(mapProduct));
 
       // Calculate Product Counts dynamically
@@ -389,12 +392,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       if (activeUser) {
         if (currentRole === 'admin' || isSuperAdmin) {
           // Fetch heavy admin data ONLY for admins
-          const [ord, usersList, coup, fullRev] = await Promise.all([
+          // Use allSettled here too just in case
+          const adminResults = await Promise.allSettled([
             supabase.from('orders').select('*').order('created_at', { ascending: false }),
             supabase.from('profiles').select('*').order('created_at', { ascending: false }),
             supabase.from('coupons').select('*').order('created_at', { ascending: false }),
             supabase.from('reviews').select('*').order('created_at', { ascending: false })
           ]);
+
+          const [ord, usersList, coup, fullRev] = adminResults.map(r => r.status === 'fulfilled' ? r.value : { data: null });
 
           if (ord.data) setOrders(ord.data.map(mapOrder));
           if (usersList.data) setUsers(usersList.data);
