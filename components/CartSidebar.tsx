@@ -26,12 +26,12 @@ const CartSidebar: React.FC = () => {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 z-[60] transition-opacity"
+        className="fixed inset-0 bg-black/50 z-[9998] transition-opacity"
         onClick={closeCart}
       />
 
       {/* Sidebar */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-[70] transform transition-transform duration-300 flex flex-col font-sans">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-[9999] transform transition-transform duration-300 flex flex-col font-sans">
         {/* Header */}
         <div className="p-5 flex items-center justify-between bg-gray-50/50 border-b border-gray-100">
           <div className="flex items-center gap-2">

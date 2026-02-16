@@ -28,9 +28,9 @@ const FeaturedBrandTabs: React.FC<FeaturedBrandTabsProps> = ({ title, brandNames
         );
     }
 
-    // Filter products for the active brand
+    // Filter products for the active brand - Case Insensitive Check
     const displayProducts = products
-        .filter(p => p.brand === activeBrand)
+        .filter(p => (p.brand || '').trim().toLowerCase() === (activeBrand || '').trim().toLowerCase())
         .slice(0, 10); // Increased limit for slider
 
     return (

@@ -131,12 +131,38 @@ const Products: React.FC = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const catParam = searchParams.get('category');
+    const brandParam = searchParams.get('brand');
+
     if (catParam && catParam.toLowerCase() !== selectedCategory.toLowerCase()) {
       setSelectedCategory(decodeURIComponent(catParam));
     } else if (!catParam && selectedCategory !== 'all') {
-      // If URL has no category but state does (e.g. back button to root), reset state? 
-      // Or do we want to persist? Usually URL is truth.
-      setSelectedCategory('all');
+      // If URL has no category but state does (e.g. back button to root), reset state checks?
+      // Only reset if NOT a brand filter (brand filter might imply all categories)
+      if (!brandParam) setSelectedCategory('all');
+    }
+
+    // Handle Brand Param
+    if (brandParam) {
+      const decodedBrand = decodeURIComponent(brandParam);
+      // Only update if not already selected (to avoid infinite loops if we were to sync back to URL, which we don't for brands yet)
+      // Logic: If URL has brand, ensure it is in selectedBrands.
+      // For single brand link (Logo Slider), we probably want to RESET other brands and select just this one.
+      if (!selectedBrands.includes(decodedBrand)) {
+        setSelectedBrands([decodedBrand]);
+      }
+    } else {
+      // If no brand param, do we reset brands? 
+      // If the user navigates to /products (clean), we should probably clear filters.
+      // But if they are just changing categories, maybe keep brands?
+      // Standard e-commerce: Navigation from menu (External Link) usually resets filters.
+      // If I click "Products" link, search is empty.
+      // Let's assume if we are strictly parsing URL for initial state, we should respect it.
+      // If I strictly follow URL, then cleaning URL removes filter.
+      // But `toggleBrand` doesn't update URL currently.
+      // So we only read from URL on mount/navigation.
+      // If brandParam is missing, and we just arrived, maybe we shouldn't clear unless we are sure.
+      // However, the issue is "shows all products" when param IS present options.
+      // So the critical part is ADDING the brand when param exists.
     }
   }, [location.search]);
 
@@ -341,7 +367,7 @@ const Products: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-8">
 
           {/* Sidebar Filters */}
-          <aside className={`shrink-0 lg:w-72 lg:block transition-all duration-300 ${isMobileFilterOpen ? 'fixed inset-0 z-[100] bg-white p-6 overflow-y-auto' : 'hidden'}`}>
+          <aside className={`shrink-0 lg:w-72 lg:block transition-all duration-300 ${isMobileFilterOpen ? 'fixed inset-0 z-[9999] bg-white p-6 overflow-y-auto' : 'hidden'}`}>
             {/* Mobile Close Button */}
             <div className="flex lg:hidden items-center justify-between mb-6">
               <h2 className="text-xl font-black uppercase tracking-wider">Filters</h2>

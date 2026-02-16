@@ -350,7 +350,7 @@ const Header: React.FC = () => {
               <Heart size={20} className="text-gray-500" />
               <span className="text-[9px] font-bold text-gray-500 uppercase">Wish</span>
             </Link>
-            <button onClick={openCart} className="flex flex-col items-center justify-center gap-1 py-1 relative">
+            <button onClick={() => { setIsMobileMenuOpen(false); openCart(); }} className="flex flex-col items-center justify-center gap-1 py-1 relative">
               <ShoppingCart size={20} className="text-gray-500" />
               {cartCount > 0 && <span className="absolute top-0 right-2 w-3 h-3 bg-emerald-500 rounded-full"></span>}
               <span className="text-[9px] font-bold text-gray-500 uppercase">Cart</span>
