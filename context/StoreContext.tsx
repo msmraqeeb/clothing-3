@@ -288,7 +288,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
 
         // 2. Initial Map
-        const initialCats = cat.data.map(c => ({
+        const initialCats = cat.data.map((c: any) => ({
           id: String(c.id),
           name: c.name,
           image: c.image_url || '',
@@ -298,14 +298,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }));
 
         // 3. Aggregate Counts (including children)
-        calculatedCategories = initialCats.map(c => {
+        calculatedCategories = initialCats.map((c: any) => {
           const allowedNames = new Set<string>();
           allowedNames.add(c.name.toLowerCase());
 
           // Recursive finder
           const findDescendants = (parentId: string) => {
-            const children = initialCats.filter(child => child.parentId === parentId);
-            children.forEach(child => {
+            const children = initialCats.filter((child: any) => child.parentId === parentId);
+            children.forEach((child: any) => {
               allowedNames.add(child.name.toLowerCase());
               findDescendants(child.id);
             });
@@ -323,9 +323,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
         setCategories(calculatedCategories);
       }
-      if (br.data) setBrands(br.data.map(b => ({ id: String(b.id), name: b.name, slug: b.slug, logo_url: b.logo_url })));
+      if (br.data) setBrands(br.data.map((b: any) => ({ id: String(b.id), name: b.name, slug: b.slug, logo_url: b.logo_url })));
       if (set.data?.value) setShippingSettings(set.data.value);
-      if (attr.data) setAttributes(attr.data.map(a => ({ id: String(a.id), name: a.name, values: Array.isArray(a.values) ? a.values : [] })));
+      if (attr.data) setAttributes(attr.data.map((a: any) => ({ id: String(a.id), name: a.name, values: Array.isArray(a.values) ? a.values : [] })));
       if (storeSettings.data?.value) setStoreInfo(storeSettings.data.value);
       if (pagesRes.data) setPages(pagesRes.data.map((p: any) => ({
         id: String(p.id),
@@ -336,7 +336,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         createdAt: p.created_at
       })));
       if (homeSectionsRes.data?.value) setHomeSections(homeSectionsRes.data.value);
-      if (bannerRes.data) setBanners(bannerRes.data.map(b => ({
+      if (bannerRes.data) setBanners(bannerRes.data.map((b: any) => ({
         id: String(b.id),
         type: b.type,
         title: b.title,
@@ -346,7 +346,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         sort_order: b.sort_order,
         is_active: b.is_active
       })));
-      if (blogRes.data) setBlogPosts(blogRes.data.map(p => ({
+      if (blogRes.data) setBlogPosts(blogRes.data.map((p: any) => ({
         id: String(p.id),
         title: p.title,
         excerpt: p.excerpt,
