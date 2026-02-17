@@ -83,7 +83,7 @@ const Home: React.FC = () => {
       <section className="w-full relative px-2 md:px-4 pt-4 pb-2">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 md:gap-4 h-auto lg:h-[500px] xl:h-[600px]">
           {/* Left Column: Main Slider (66%) */}
-          <div className="lg:col-span-2 h-[300px] md:h-[400px] lg:h-full rounded-2xl overflow-hidden shadow-sm relative">
+          <div className="lg:col-span-2 h-auto aspect-[16/9] md:aspect-[21/9] lg:h-full rounded-2xl overflow-hidden shadow-sm relative">
             {banners.filter(b => b.type === 'slider').length > 0 ? (
               <BannerSlider banners={banners.filter(b => b.type === 'slider').sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))} />
             ) : (
