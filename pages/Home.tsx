@@ -103,8 +103,8 @@ const Home: React.FC = () => {
             )}
           </div>
 
-          {/* Right Column: 2x2 Grid (33%) - Hidden on Mobile */}
-          <div className="hidden lg:grid lg:col-span-1 grid-cols-2 lg:grid-rows-2 gap-2 md:gap-4 h-auto lg:h-full">
+          {/* Right Column: 2x2 Grid (33%) */}
+          <div className="lg:col-span-1 grid grid-cols-2 lg:grid-rows-2 gap-2 md:gap-4 h-auto lg:h-full">
             {banners.filter(b => b.type === 'hero_grid').sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)).slice(0, 4).map((banner) => (
               <Link to={banner.link || '#'} key={banner.id} className="relative group overflow-hidden rounded-2xl block w-full h-auto lg:h-full shadow-sm border border-gray-100">
                 <img
