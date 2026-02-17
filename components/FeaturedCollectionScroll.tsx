@@ -39,7 +39,7 @@ const FeaturedCollectionScroll: React.FC<FeaturedCollectionScrollProps> = ({
     if (!products || products.length === 0) return null;
 
     return (
-        <section className="w-full px-4 py-8">
+        <section className="w-full px-4 py-2 md:py-8">
             <div
                 className="flex flex-col lg:flex-row h-auto lg:h-[600px] rounded-md overflow-hidden shadow-xl"
                 style={{ backgroundColor }}

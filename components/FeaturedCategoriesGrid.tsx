@@ -27,7 +27,7 @@ const FeaturedCategoriesGrid: React.FC<FeaturedCategoriesGridProps> = ({ items, 
     if (displayItems.length === 0) return null;
 
     return (
-        <section className="w-full px-2 md:px-4 py-8 bg-white">
+        <section className="w-full px-2 md:px-4 py-2 md:py-8 bg-white">
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
                 {displayItems.map((item, idx) => (
                     <Link

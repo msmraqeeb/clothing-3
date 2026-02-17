@@ -43,7 +43,7 @@ const FeaturedProductTabs: React.FC<FeaturedProductTabsProps> = ({ title, produc
     }, [products, orders, activeTab]);
 
     return (
-        <section className="w-full py-12 bg-white">
+        <section className="w-full py-4 md:py-12 bg-white">
             <div className="w-full px-2 md:px-4">
                 <div className="flex flex-col items-center justify-center mb-8">
                     {/* Render Title only if provided, else keep header simple */}
