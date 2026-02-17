@@ -77,7 +77,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-white pb-20">
+    <div className="w-full bg-white pb-6 md:pb-20">
       {/* Hero Section */}
       {/* Hero Section - Split Layout */}
       <section className="w-full relative px-2 md:px-4 pt-4 pb-2">

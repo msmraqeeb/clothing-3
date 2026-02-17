@@ -22,7 +22,7 @@ const BrandLogoSlider: React.FC<BrandLogoSliderProps> = ({ title, brandNames }) 
     if (brandsWithLogos.length === 0) return null;
 
     return (
-        <section className="w-full py-8 bg-white border-b border-gray-50">
+        <section className="w-full py-2 md:py-8 bg-white border-b border-gray-50">
             <div className="w-full px-2 md:px-4">
                 <div className="flex items-center justify-between mb-6 px-2">
                     <h2 className="text-lg md:text-xl font-black text-emerald-950 uppercase tracking-tight">

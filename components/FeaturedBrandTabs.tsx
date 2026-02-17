@@ -34,7 +34,7 @@ const FeaturedBrandTabs: React.FC<FeaturedBrandTabsProps> = ({ title, brandNames
         .slice(0, 10); // Increased limit for slider
 
     return (
-        <section className="w-full py-6 md:py-10 bg-white">
+        <section className="w-full py-2 md:py-10 bg-white">
             <div className="max-w-7xl mx-auto px-6">
                 {/* Section Title */}
                 <div className="text-center mb-8">

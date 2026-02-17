@@ -88,20 +88,19 @@ const FloatingContact = () => {
             {/* Main Toggle Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                style={{ backgroundColor: isOpen ? 'black' : 'transparent' }}
-                className={`w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 relative overflow-hidden ring-4 ring-white ${isOpen ? 'rotate-180' : 'hover:scale-105'}`}
+                className={`w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 relative overflow-hidden group/btn ${isOpen ? 'rotate-180 bg-black hover:bg-white hover:border-2 hover:border-[#4F0343] hover:text-[#4F0343]' : 'hover:scale-105'}`}
             >
                 {isOpen ? (
-                    <X size={24} className="text-white" />
+                    <X size={24} className="text-white group-hover/btn:text-[#4F0343]" />
                 ) : (
                     supportImage ? (
-                        <div className="w-full h-full relative group">
+                        <div className="w-full h-full relative">
                             <img src={supportImage} alt="Support" className="w-full h-full object-cover" />
                             {/* Green online dot */}
                             <span className="absolute top-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
                         </div>
                     ) : (
-                        <div className="w-full h-full bg-[#007bff] flex items-center justify-center text-white rounded-full">
+                        <div className="w-full h-full bg-[#4F0343] border-2 border-[#4F0343] group-hover/btn:bg-white text-white group-hover/btn:text-[#4F0343] flex items-center justify-center rounded-full transition-colors duration-300">
                             <MessageSquare size={24} />
                             <span className="absolute top-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
                         </div>
